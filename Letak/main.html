@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Flip Book</title>
+  <link rel="stylesheet" href="main.css">
+</head>
+<body>
+  <div id="loader" class="loader"></div>
+
+  <div class="settings-container">
+    <button id="settingsBtn" class="settings-btn">⚙️</button>
+    <div id="settingsMenu" class="settings-menu hidden">
+      
+      <div class="setting-item">
+        <span class="setting-label">Vnější stín</span>
+        <button id="toggleShadowBtn" class="toggle-action-btn on">ZAPNUTO</button>
+      </div>
+      <div class="setting-item">
+        <span class="setting-label">Zvuky letáku</span>
+        <button id="toggleSoundBtn" class="toggle-action-btn on">ZAPNUTO</button>
+      </div>
+      <div class="setting-item">
+        <span class="setting-label">Tmavý režim</span>
+        <button id="toggleDarkModeBtn" class="toggle-action-btn off">VYPNUTO</button>
+      </div>
+      <hr class="menu-divider">
+
+      <div class="setting-group">
+        <label>Přiblížení: <span id="zoomValue">1x</span></label>
+        <input type="range" id="zoomSlider" min="1" max="3" step="0.1" value="1">
+      </div>
+
+      <div class="setting-group">
+        <label>Velikost stínu:</label>
+        <input type="range" id="shadowSizeSlider" min="0" max="100" step="5" value="40">
+      </div>
+
+      <div class="setting-group">
+        <label>Síla stínu:</label>
+        <input type="range" id="shadowStrengthSlider" min="0" max="1" step="0.05" value="0.5">
+      </div>
+
+      <div class="setting-group">
+        <label>Barva stínu:</label>
+        <input type="color" id="shadowColorPicker" value="#000000">
+      </div>
+
+    </div>
+  </div>
+
+  <div id="zoomWrapper" class="zoom-wrapper">
+    <div class="flipBook with-shadow" id="flipBook"></div>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/page-flip/dist/js/page-flip.browser.js"></script>
+  
+  <script src="flipBook.js"></script>
+  <script src="main.js"></script>
+  
+</body>
+</html>

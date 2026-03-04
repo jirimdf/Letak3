@@ -1,0 +1,290 @@
+class FlipBook {
+  constructor(bookId, path) {
+    this.book = document.getElementById(bookId);
+    this.path = path;
+    
+    // --- INICIALIZACE ZVUKŮ ---
+    this.flipSounds = [
+      new Audio('Sounds/1.mp3'),
+      new Audio('Sounds/2.mp3'),
+      new Audio('Sounds/3.mp3')
+    ];
+    this.flipSounds.forEach(snd => snd.volume = 0.5);
+    
+    this.soundEnabled = true;
+
+    // --- LOGIKA MENU A TLAČÍTEK ---
+    const settingsBtn = document.getElementById('settingsBtn');
+    const settingsMenu = document.getElementById('settingsMenu');
+    const toggleShadowBtn = document.getElementById('toggleShadowBtn');
+    const toggleSoundBtn = document.getElementById('toggleSoundBtn');
+    const toggleDarkModeBtn = document.getElementById('toggleDarkModeBtn');
+
+    // Tlačítko TMAVÝ REŽIM
+    if (toggleDarkModeBtn) {
+      toggleDarkModeBtn.addEventListener('click', () => {
+        // Přidá nebo odebere třídu 'dark-mode' z tagu <body>
+        const isDark = document.body.classList.toggle('dark-mode');
+        
+        if (isDark) {
+          toggleDarkModeBtn.innerText = 'ZAPNUTO';
+          toggleDarkModeBtn.classList.replace('off', 'on');
+          
+          // Pokud je tma, možná by stín mohl zkusit být o trošku světlejší, aby byl vidět
+          // root.style.setProperty('--shadow-color', '#ffffff33'); // (Volitelně, pokud bys chtěl svítící auru)
+        } else {
+          toggleDarkModeBtn.innerText = 'VYPNUTO';
+          toggleDarkModeBtn.classList.replace('on', 'off');
+        }
+      });
+    }
+
+    if (settingsBtn && settingsMenu) {
+      settingsBtn.addEventListener('click', () => {
+        settingsMenu.classList.toggle('hidden');
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!settingsBtn.contains(e.target) && !settingsMenu.contains(e.target)) {
+          settingsMenu.classList.add('hidden');
+        }
+      });
+    }
+
+    if (toggleShadowBtn) {
+      toggleShadowBtn.addEventListener('click', () => {
+        const hasShadow = this.book.classList.toggle('with-shadow');
+        toggleShadowBtn.innerText = hasShadow ? 'ZAPNUTO' : 'VYPNUTO';
+        toggleShadowBtn.classList.replace(hasShadow ? 'off' : 'on', hasShadow ? 'on' : 'off');
+      });
+    }
+
+    if (toggleSoundBtn) {
+      toggleSoundBtn.addEventListener('click', () => {
+        this.soundEnabled = !this.soundEnabled;
+        toggleSoundBtn.innerText = this.soundEnabled ? 'ZAPNUTO' : 'VYPNUTO';
+        toggleSoundBtn.classList.replace(this.soundEnabled ? 'off' : 'on', this.soundEnabled ? 'on' : 'off');
+      });
+    }
+
+    // --- LOGIKA POSUVNÍKŮ A BAREV ---
+    const root = document.documentElement;
+    const zoomSlider = document.getElementById('zoomSlider');
+    const zoomValue = document.getElementById('zoomValue');
+    const shadowSizeSlider = document.getElementById('shadowSizeSlider');
+    const shadowStrengthSlider = document.getElementById('shadowStrengthSlider'); // NOVÉ
+    const shadowColorPicker = document.getElementById('shadowColorPicker');
+    const zoomWrapper = document.getElementById('zoomWrapper');
+
+    // 1. Posuvník Zoomu
+    if (zoomSlider) {
+      zoomSlider.addEventListener('input', (e) => {
+        root.style.setProperty('--zoom', e.target.value);
+        if (zoomValue) zoomValue.innerText = e.target.value + 'x';
+      });
+    }
+
+    // 2. Rychlý Zoom Dvojklikem
+    if (zoomWrapper) {
+      zoomWrapper.addEventListener('dblclick', () => {
+        let currentZoom = parseFloat(getComputedStyle(root).getPropertyValue('--zoom')) || 1;
+        let newZoom = currentZoom > 1.2 ? 1 : 2; 
+        root.style.setProperty('--zoom', newZoom);
+        if (zoomSlider) zoomSlider.value = newZoom;
+        if (zoomValue) zoomValue.innerText = newZoom + 'x';
+      });
+    }
+
+    // 3. Posuvník Velikosti stínu
+    if (shadowSizeSlider) {
+      shadowSizeSlider.addEventListener('input', (e) => {
+        root.style.setProperty('--shadow-size', e.target.value + 'px');
+        root.style.setProperty('--shadow-offset', '0px'); // Dokonale vycentrovaný!
+      });
+    }
+
+    // --- NOVÁ FUNKCE: Spojení Barvy a Síly stínu ---
+    const updateShadowColorAndStrength = () => {
+      const hexColor = shadowColorPicker ? shadowColorPicker.value : '#000000';
+      const strength = shadowStrengthSlider ? parseFloat(shadowStrengthSlider.value) : 0.5;
+      
+      // Převod síly (0.0 až 1.0) na HEX kód průhlednosti (00 až FF)
+      const alphaHex = Math.round(strength * 255).toString(16).padStart(2, '0');
+      
+      // Spojíme čistou barvu a průhlednost (např. #ff0000 + 80)
+      root.style.setProperty('--shadow-color', hexColor + alphaHex);
+    };
+
+    // 4. Posuvník Síly stínu
+    if (shadowStrengthSlider) {
+      shadowStrengthSlider.addEventListener('input', updateShadowColorAndStrength);
+    }
+
+    // 5. Kapátko barvy stínu
+    if (shadowColorPicker) {
+      shadowColorPicker.addEventListener('input', updateShadowColorAndStrength);
+    }
+
+    this.initialize();
+  }
+
+  playFlipSound() {
+    if (!this.soundEnabled) return; 
+
+    const randomIndex = Math.floor(Math.random() * this.flipSounds.length);
+    const sound = this.flipSounds[randomIndex];
+    
+    sound.currentTime = 0; 
+    sound.play().catch(e => console.warn("Zvuk čeká na interakci uživatele"));
+  }
+
+  async initialize() {
+    await this.buildPages();
+  }
+
+  async buildPages() {
+    const response = await fetch(this.path);
+    const text = await response.text();
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(text, "text/html");
+
+    let allLinks = Array.from(doc.querySelectorAll("a"))
+      .map(a => a.getAttribute("href"))
+      .filter(href => href && !href.startsWith("?") && !href.endsWith("/"));
+
+    const getFileName = (url) => {
+      return decodeURIComponent(url.split('/').pop().split('?')[0]);
+    };
+
+    let regularFiles = allLinks.filter(f => {
+      const fileName = getFileName(f);
+      return /^\d+\.(jpg|jpeg|png|webp)$/i.test(fileName);
+    });
+
+    let imageUrls = regularFiles.map(file => {
+      if (!file.includes('/')) return this.path + file;
+      return file;
+    });
+
+    imageUrls.sort((a, b) => {
+      const nameA = getFileName(a);
+      const nameB = getFileName(b);
+      const numA = parseInt(nameA.match(/^\d+/) || 0);
+      const numB = parseInt(nameB.match(/^\d+/) || 0);
+      return numA - numB;
+    });
+
+    let finalPages = [...imageUrls];
+
+    const getErrorPage = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = 400;
+      canvas.height = 600;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#ffeded'; 
+      ctx.fillRect(0, 0, 400, 600);
+      ctx.fillStyle = '#d90000';
+      ctx.font = 'bold 24px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('CHYBÍ STRÁNKA', 200, 280);
+      ctx.font = '16px Arial';
+      ctx.fillStyle = '#000000';
+      ctx.fillText('Počet stránek nemůže být lichý', 200, 320);
+      return canvas.toDataURL('image/jpeg', 0.95);
+    };
+
+    if (finalPages.length % 2 !== 0) {
+      finalPages.push(getErrorPage());
+    }
+
+    this.book.innerHTML = '';
+
+    finalPages.forEach((src, index) => {
+      const div = document.createElement('div');
+      div.className = 'page';
+      
+      const shadowClass = (index % 2 === 0) ? 'shadow-right' : 'shadow-left';
+
+      div.innerHTML = `
+        <div class="${shadowClass}"></div>
+        <img src="${src}" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+      `;
+      this.book.appendChild(div);
+    });
+
+    const images = Array.from(this.book.querySelectorAll('img'));
+    await Promise.all(images.map(img => {
+      return new Promise(resolve => {
+        if (img.complete) resolve();
+        else {
+          img.onload = resolve;
+          img.onerror = resolve;
+        }
+      });
+    }));
+
+    this.initPageFlip();
+  }
+
+  initPageFlip() {
+    this.book.style.transform = 'translateX(-25%)';
+
+    this.pageFlip = new St.PageFlip(this.book, {
+      width: 400,
+      height: 600,
+      size: "stretch",
+      minWidth: 40,   // Extrémní zmenšení pro hodinky
+      minHeight: 60,  
+      maxWidth: 400,
+      maxHeight: 600,
+      showCover: true,
+      usePortrait: false,
+      maxShadowOpacity: 0.7, 
+      drawShadow: true,
+      flippingTime: 1000
+    });
+
+    this.pageFlip.loadFromHTML(this.book.querySelectorAll('.page'));
+
+    setTimeout(() => {
+      this.book.style.opacity = '1';
+      this.book.style.transition = 'opacity 0.8s ease, transform 0.6s ease';
+
+      const loader = document.getElementById('loader');
+      if (loader) {
+        loader.style.opacity = '0';
+        setTimeout(() => loader.remove(), 500); 
+      }
+    }, 50);
+
+    let currentState = 'read'; 
+
+    this.pageFlip.on('changeState', (e) => {
+      if ((currentState === 'read' || currentState === 'fold_corner') && 
+          (e.data === 'flipping' || e.data === 'user_fold')) {
+        this.playFlipSound();
+      }
+      currentState = e.data; 
+    });
+
+    this.pageFlip.on('flip', (e) => {
+      const pageCount = this.pageFlip.getPageCount();
+      
+      if (e.data === 0) {
+        this.book.style.transform = 'translateX(-25%)';
+      } else if (e.data === pageCount - 1) {
+        this.book.style.transform = 'translateX(25%)';
+      } else {
+        this.book.style.transform = 'translateX(0)';
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') {
+        this.pageFlip.flipNext(); 
+      } else if (e.key === 'ArrowLeft') {
+        this.pageFlip.flipPrev(); 
+      }
+    });
+  }
+}

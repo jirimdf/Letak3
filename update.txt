@@ -1,0 +1,40 @@
+Použit localhost Windows IIS (Internet Information Services)
+Povolit procházení adresáře v "inetmgr" přes win+r
+Pro povolení .webp souboru do IIS Správce a v kolonce Typy MIME přidat příponu .webp a typ image/webp
+
+
+
+Verze:
+0_0
+Beta verze
+Přidání obrázků pro otáčení
+Přidání funkce pro otáčení
+
+2_1
+Responzivita
+Nové dynamické centrování
+zakázání scrollbaru
+Upravení čtení souboru obrázku místo jmen jen čísla (0.png)
+Načtení obrázku podle čísla za sebou, ne náhodně
+Přidání načítacího kolečka
+Přidání chybné hlášky ve formě obrázku o lichém počtu souboru
+Dynamické stíny
+
+2_2
+Posouvání stránek pomocí šipek dopředu a dozadu na klávesnici
+Přidání 3 zvuku otáčení papíru
+Přidání .webp formátu
+Odstranení Error obrázku z root složky
+Přidání stínu
+Přidání kolečka nastavení a funkce
+Oprava responzivity pro apple watch
+Přidání zoom funkce a dvojklik
+Přidání modernejšího GUI
+Přidání síly a velikosti stínu
+Light/Dark mode funkce
+Zlepšení optimalizace
+
+
+Plány:
+šipky vedle stránek
+
