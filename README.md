@@ -45,3 +45,10 @@ Pro správné fungování lokálního serveru na Windows (IIS) je nutné provés
 * **Customizace stínu:** V nastavení lze nyní plynule ovládat velikost, sílu (průhlednost přepočítávanou do HEX kódu) a barvu vnějšího stínu.
 * **Light / Dark Mode:** Implementováno tlačítko pro přepínání světlého a tmavého režimu, které plynule ztmaví pozadí i samotné GUI.
 * **Hardwarová akcelerace:** Kritický update optimalizace. Přesunutí výpočtů stínů a tažení stránek na grafickou kartu (GPU) pomocí `transform: translateZ(0)` a `will-change`, což vyřešilo zasekávání a zajistilo plynulý chod.
+
+### 🔹 v3.1 - Lock & Mobile UX
+* **Chytrý zámek proporcí:** Flexbox byl nahrazen absolutním matematickým ukotvením přesně na střed obrazovky (`position: absolute`). Obal letáku nyní využívá CSS funkci `min()`, díky které si automaticky drží perfektní poměr stran 8:6 napříč všemi zařízeními bez spoléhání na nestabilní přepočty JavaScriptu.
+* **Oprava dotykového ovládání na mobilech:** Obnovena nativní podpora natahovaní letáku (`stretch`), čímž se srovnalo mapování souřadnic dotyku. Stránky lze opět na mobilech a tabletech přirozeně otáčet taháním prstu za libovolný okraj, a to s přesností 1:1 k displeji.
+* **Navigační šipky:** Přidány plovoucí šipky ukotvené po stranách obrazovky pro větší pohodlí.
+* **Glass-effect UX (Light/Dark Mode):** Šipky dostaly vylepšený "neviditelný" design s bílou průhledností. V Light modu mají tmavé znaky, v Dark modu světlé, takže na obou režimech fungují jako čisté sklo a neruší čtení textu pod nimi.
+* **Dokonalé centrování obálek:** Vypnuto problémové interní auto-centrování knihovny a implementována vlastní přesná logika posunu (`translateX`), která přední obálku i zadní stranu plynule a bezchybně ukotví vždy na absolutní střed obrazovky.
