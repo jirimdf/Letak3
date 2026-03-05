@@ -1,7 +1,6 @@
 /* --- GLOBÁLNÍ PROMĚNNÉ --- */
 :root {
   --zoom: 1;
-  --responsive-scale: 1; 
   --shadow-size: 40px;
   --shadow-offset: 0px; 
   --shadow-color: rgba(0, 0, 0, 0.5); 
@@ -38,23 +37,25 @@ body.dark-mode .menu-divider {
   background: #444; 
 }
 
-/* --- FUNKCE PŘIBLÍŽENÍ (ZOOM) A RESPONZIVITY --- */
+/* --- FUNKCE PŘIBLÍŽENÍ (ZOOM) --- */
 .zoom-wrapper {
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%) scale(calc(var(--zoom) * var(--responsive-scale)));
-  width: 800px;
-  height: 600px;
+  /* Používáme už jen uživatelský zoom, responzivitu řeší knihovna s krabičkou */
+  transform: translate(-50%, -50%) scale(var(--zoom));
+  width: 100vw;
+  height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-/* --- TVRDÝ ZÁMEK OBALU --- */
+/* --- CHYTRÝ ZÁMEK OBALU (NATIVNÍ RESPONZIVITA) --- */
 .book-bounding-box {
-  width: 800px;
-  height: 600px; 
+  /* CSS Magie: Vypočítá max velikost tak, aby se vešla na obrazovku, ale VŽDY zachovala poměr 8:6 */
+  width: min(95vw, 800px, calc(85vh * 8 / 6));
+  height: min(85vh, 600px, calc(95vw * 6 / 8));
   position: relative;
 }
 
@@ -289,8 +290,8 @@ body.dark-mode .menu-divider {
   position: fixed;
   top: 50%;
   transform: translateY(-50%);
-  background: rgba(0, 0, 0, 0.3); 
-  color: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(0, 0, 0, 0.5);
   border: none;
   width: 50px;
   height: 80px;
@@ -305,7 +306,7 @@ body.dark-mode .menu-divider {
 }
 
 body.dark-mode .nav-arrow {
-  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .nav-arrow:hover {
