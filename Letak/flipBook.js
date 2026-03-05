@@ -70,15 +70,6 @@ class FlipBook {
 
     // --- LOGIKA POSUVNÍKŮ A BAREV ---
     const root = document.documentElement;
-
-    // --- TVRDÝ ZÁMEK RESPONZIVITY ---
-    const updateScale = () => {
-      const scale = Math.min(1, (window.innerWidth * 0.95) / 800, (window.innerHeight * 0.85) / 600);
-      root.style.setProperty('--responsive-scale', scale);
-    };
-    window.addEventListener('resize', updateScale);
-    updateScale();
-
     const zoomSlider = document.getElementById('zoomSlider');
     const zoomValue = document.getElementById('zoomValue');
     const shadowSizeSlider = document.getElementById('shadowSizeSlider');
@@ -117,8 +108,6 @@ class FlipBook {
     const updateShadowColorAndStrength = () => {
       const hexColor = shadowColorPicker ? shadowColorPicker.value : '#000000';
       const strength = shadowStrengthSlider ? parseFloat(shadowStrengthSlider.value) : 0.5;
-
-      // Převod desetinné síly na HEX formát pro průhlednost (např. 0.5 -> 80)
       const alphaHex = Math.round(strength * 255).toString(16).padStart(2, '0');
       root.style.setProperty('--shadow-color', hexColor + alphaHex);
     };
@@ -154,7 +143,7 @@ class FlipBook {
 
   // --- JÁDRO APLIKACE ---
   async buildPages() {
-    // 1. Získání obsahu složky přes HTTP request
+    
     const response = await fetch(this.path);
     const text = await response.text();
     const parser = new DOMParser();
@@ -222,7 +211,6 @@ class FlipBook {
       const div = document.createElement('div');
       div.className = 'page';
 
-      // Střídání vnitřních stínů pro realistický hřbet knihy
       const shadowClass = (index % 2 === 0) ? 'shadow-right' : 'shadow-left';
 
       div.innerHTML = `
@@ -249,13 +237,16 @@ class FlipBook {
 
   // --- INICIALIZACE KNIHOVNY PAGEFLIP ---
   initPageFlip() {
-    // Posun počáteční pozice pro správné zobrazení obálky
-    this.book.style.transform = 'translateX(-25%)';
+    this.book.style.transform = 'translateX(-25%)'; // Výchozí vycentrování obálky
 
     this.pageFlip = new St.PageFlip(this.book, {
       width: 400,
       height: 600,
-      size: "fixed", 
+      size: "stretch", // NATIVNÍ ZMENŠOVÁNÍ - srovná mapování dotyku na displej 1:1
+      minWidth: 50,    // Bezpečný limit i pro ty nejmenší mobilní displeje
+      maxWidth: 400,
+      minHeight: 75,
+      maxHeight: 600,
       showCover: true,
       usePortrait: false,
       maxShadowOpacity: 0.7, 
@@ -287,16 +278,16 @@ class FlipBook {
       currentState = e.data; 
     });
 
-    // Inteligentní centrování knihy v závislosti na aktuální stránce (obálka / vnitřek / zadní strana)
+    // --- MANUÁLNÍ A DOKONALÉ CENTROVÁNÍ OBÁLEK ---
     this.pageFlip.on('flip', (e) => {
       const pageCount = this.pageFlip.getPageCount();
       
       if (e.data === 0) {
-        this.book.style.transform = 'translateX(-25%)';
+        this.book.style.transform = 'translateX(-25%)'; 
       } else if (e.data === pageCount - 1) {
-        this.book.style.transform = 'translateX(25%)';
+        this.book.style.transform = 'translateX(25%)'; 
       } else {
-        this.book.style.transform = 'translateX(0)';
+        this.book.style.transform = 'translateX(0)'; 
       }
     });
 
