@@ -1,4 +1,4 @@
-[![Ukázka projektu](LetakV3/Letak/TEST%20FILE/miniatura.png)](https://youtu.be/YxxB9A8hF8I)
+[![Ukázka projektu](https://github.com/jirimdf/LetakV3/blob/main/Letak/TEST%20FILE/miniatura.png?raw=true)](https://youtu.be/YxxB9A8hF8I)
 ---
 
 **Kontakt a sítě:**
